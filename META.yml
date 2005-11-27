@@ -1,0 +1,17 @@
+---
+name: Catalyst-Plugin-Session-PerUser
+version: 0.01
+author: ~
+abstract: |-
+  Per user sessions (instead of per
+  browser sessions).
+license: perl
+requires:
+  Catalyst::Plugin::Authentication: 0.01
+  Catalyst::Plugin::Session: 0.01
+  Hash::Merge: 0
+provides:
+  Catalyst::Plugin::Session::PerUser:
+    file: lib/Catalyst/Plugin/Session/PerUser.pm
+    version: 0.01
+generated_by: Module::Build version 0.2611
