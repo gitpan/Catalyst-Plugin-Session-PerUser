@@ -6,7 +6,7 @@ use base qw/Class::Accessor::Fast/;
 use strict;
 use warnings;
 
-our $VERSION = "0.01";
+our $VERSION = "0.02";
 
 use Hash::Merge ();
 
@@ -21,6 +21,7 @@ sub setup {
 
     %$cfg = (
         migrate => 1,
+        merge_type => "RIGHT_PRECEDENT",
         %$cfg,
     );
 
@@ -36,6 +37,15 @@ sub set_authenticated {
     if ( $c->config->{user_session}{migrate} ) {
         $c->merge_session_to_user;
     }
+}
+
+sub logout {
+    my $c = shift;
+    
+    $c->store_user_session_in_session_store;
+    $c->_user_session(undef);
+    
+    $c->NEXT::logout(@_);
 }
 
 sub user_session {
@@ -94,7 +104,7 @@ sub merge_session_to_user {
     my $merge_behavior = Hash::Merge::get_behavior;
     my $clone_behavior = Hash::Merge::get_clone_behavior;
 
-    Hash::Merge::set_behavior("RETAINMENT_PRECEDENT");
+    Hash::Merge::set_behavior( $c->config->{user_session}{merge_type} );
     Hash::Merge::set_clone_behavior(0);
 
     my $s    = $c->session;
@@ -195,8 +205,8 @@ C<<$c->user_session_from_session_store>>.
 
 =item merge_session_to_user
 
-Uses L<Hash::Merge> with the C<RETAINMENT_PRECEDENT> and no cloning mode, omitting
-the special keys from C<session> itself.
+Uses L<Hash::Merge> to merge the browser session into the user session,
+omitting the special keys from the browser session.
 
 Should be overloaded to e.g. merge shopping cart items more smartly.
 
@@ -229,7 +239,9 @@ Calls C<merge_session_to_user>
 
 =head1 CONFIGURATION
 
-	$c->config->{user_session};
+	$c->config->{user_session} = {
+        ...
+    };
 
 =over 4
 
@@ -237,6 +249,12 @@ Calls C<merge_session_to_user>
 
 Whether C<< $c->session >> should be merged over C<< $c->user_session >> on
 login. On by default.
+
+=item merge_type
+
+Passed to L<Hash::Merge/set_behavior>. Defaults to C<RIGHT_PRECEDENT>.
+
+=item 
 
 =back
 
@@ -259,7 +277,7 @@ David Kamholz, C<dkamholz@cpan.org>
 
 Yuval Kogman, C<nothingmuch@woobling.org>
 
-=head1 COPYRIGHT & LICNESE
+=head1 COPYRIGHT & LICENSE
 
         Copyright (c) 2005 the aforementioned authors. All rights
         reserved. This program is free software; you can redistribute

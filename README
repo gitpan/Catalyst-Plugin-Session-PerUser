@@ -62,8 +62,8 @@ METHODS
 
 INTERNAL METHODS
     merge_session_to_user
-        Uses Hash::Merge with the "RETAINMENT_PRECEDENT" and no cloning
-        mode, omitting the special keys from "session" itself.
+        Uses Hash::Merge to merge the browser session into the user session,
+        omitting the special keys from the browser session.
 
         Should be overloaded to e.g. merge shopping cart items more smartly.
 
@@ -84,11 +84,19 @@ EXTENDED METHODS
         Calls "merge_session_to_user"
 
 CONFIGURATION
-            $c->config->{user_session};
+            $c->config->{user_session} = {
+            ...
+        };
 
     migrate
         Whether "$c->session" should be merged over "$c->user_session" on
         login. On by default.
+
+    merge_type
+        Passed to "set_behavior" in Hash::Merge. Defaults to
+        "RIGHT_PRECEDENT".
+
+    *
 
     CAVEATS
     If you override "validate_session_id" in Catalyst::Plugin::Session make
@@ -106,7 +114,7 @@ AUTHORS
 
     Yuval Kogman, "nothingmuch@woobling.org"
 
-COPYRIGHT & LICNESE
+COPYRIGHT & LICENSE
             Copyright (c) 2005 the aforementioned authors. All rights
             reserved. This program is free software; you can redistribute
             it and/or modify it under the same terms as Perl itself.

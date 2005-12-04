@@ -1,6 +1,6 @@
 ---
 name: Catalyst-Plugin-Session-PerUser
-version: 0.01
+version: 0.02
 author: ~
 abstract: |-
   Per user sessions (instead of per
@@ -13,5 +13,5 @@ requires:
 provides:
   Catalyst::Plugin::Session::PerUser:
     file: lib/Catalyst/Plugin/Session/PerUser.pm
-    version: 0.01
+    version: 0.02
 generated_by: Module::Build version 0.2611
