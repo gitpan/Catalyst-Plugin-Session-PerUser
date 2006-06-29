@@ -15,6 +15,15 @@ use Test::More tests => 43;
 
         $feature eq "session_data" || $self->SUPER::supports($feature);
     }
+    
+    sub get_session_data {
+        return shift->{session_data};
+    }
+    
+    sub store_session_data {
+        my ( $self, $data ) = @_;
+        return $self->{session_data} = $data;
+    }
 
     package PerUserTestApp;
     use Catalyst qw/
@@ -148,7 +157,7 @@ $m->content_is( join( ", ", sort qw/elk moose/ ),
 is_deeply(
     [
         sort keys %{ PerUserTestApp->config->{authentication}{users}{gorch}
-              ->session_data->{items}
+              ->get_session_data->{items}
           }
     ],
     [qw/elk moose/],

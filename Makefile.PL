@@ -7,9 +7,11 @@ WriteMakefile
           'PREREQ_PM' => {
                            'Catalyst::Plugin::Authentication' => '0.01',
                            'Catalyst::Plugin::Session' => '0.01',
-                           'Hash::Merge' => '0'
+                           'Hash::Merge' => '0',
+                           'Object::Signature' => '0'
                          },
           'INSTALLDIRS' => 'site',
+          'EXE_FILES' => [],
           'PL_FILES' => {}
         )
 ;

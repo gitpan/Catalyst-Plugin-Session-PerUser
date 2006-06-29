@@ -33,9 +33,9 @@ STORING SESSION DATA
     This module can store session data in two ways:
 
   Within the User
-    If "<$c-"user->supports("session_data")>> then
-    "<$c-"user->session_data>> is used as an accessor to store the per-user
-    session hash reference.
+    If "$c->user->supports("session_data")" then
+    "$c->user->get_session_data" and "$c->user->store_session_data($data)"
+    are used to access and store the per-user session hash reference.
 
     This is useful for Catalyst::Plugin::Authentication::Store
     implementations that rely on a database or another fast, extensible
@@ -54,34 +54,29 @@ STORING SESSION DATA
 
 METHODS
     user_session
-        If no user is logged in, returns "<$c-"session>>.
+        If no user is logged in, returns "$c->session".
 
-        If a user is logged in, and "<$user-"supports("session_data")>> it
-        will return "<$c-"user->session_data>>. Otherwise it will return
-        "<$c-"user_session_from_session_store>>.
+        If a user is logged in, and "$user->supports("session_data")" it
+        will return "$c->user->get_session_data". Otherwise it will return
+        data from the normal session store, using "user_session_sid" as a
+        session ID.
 
 INTERNAL METHODS
     merge_session_to_user
         Uses Hash::Merge to merge the browser session into the user session,
         omitting the special keys from the browser session.
 
-        Should be overloaded to e.g. merge shopping cart items more smartly.
-
-    get_user_session_from_session_store
-        Uses the "Catalyst::Plugin::Session::Store" api to get a session
-        data chunk whose session ID is "user_session_sid".
-
-    store_user_session_in_session_store
-        Stores the session data cached by "user_session_from_session_store".
+        Should be overloaded to e.g. merge shopping cart items more
+        intelligently.
 
     user_session_sid
-        Returns
+        By default returns
 
                 "user:" . $c->user->id
 
 EXTENDED METHODS
     set_authenticated
-        Calls "merge_session_to_user"
+        Calls "merge_session_to_user".
 
 CONFIGURATION
             $c->config->{user_session} = {
@@ -96,15 +91,15 @@ CONFIGURATION
         Passed to "set_behavior" in Hash::Merge. Defaults to
         "RIGHT_PRECEDENT".
 
-    *
+
 
     CAVEATS
-    If you override "validate_session_id" in Catalyst::Plugin::Session make
-    sure it's format DOES NOT ALLOW the format returned by
-    "user_session_sid", or malicious users could potentially set their
-    cookies to have sessions formatted like a string returned by
-    "user_session_sid", and steal or destroy another user's session without
-    authenticating. =back
+        If you override "validate_session_id" in Catalyst::Plugin::Session
+        make sure its format DOES NOT ALLOW the format returned by
+        "user_session_sid", or malicious users could potentially set their
+        cookies to have sessions formatted like a string returned by
+        "user_session_sid", and steal or destroy another user's session
+        without authenticating. =back
 
 SEE ALSO
     Catalyst::Plugin::Authentication, Catalyst::Plugin::Session
@@ -118,4 +113,14 @@ COPYRIGHT & LICENSE
             Copyright (c) 2005 the aforementioned authors. All rights
             reserved. This program is free software; you can redistribute
             it and/or modify it under the same terms as Perl itself.
+
+POD ERRORS
+    Hey! The above document had some coding errors, which are explained
+    below:
+
+    Around line 265:
+        '=item' outside of any '=over'
+
+    Around line 274:
+        You forgot a '=back' before '=head1'
 

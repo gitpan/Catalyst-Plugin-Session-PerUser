@@ -6,12 +6,13 @@ my $build = Module::Build->new(
     license            => 'perl',
     module_name        => 'Catalyst::Plugin::Session::PerUser',
     requires           => {
-        'Catalyst::Plugin::Session'        => '0.01',
-        'Catalyst::Plugin::Authentication' => '0.01',
-		'Hash::Merge'                      => 0,
+        'Catalyst::Plugin::Session'         => '0.01',
+        'Catalyst::Plugin::Authentication'  => '0.01',
+        'Hash::Merge'                       => 0,
+        'Object::Signature'                 => 0,
     },
     create_readme => 1,
-    sign          => 1,
+#    sign          => 1,
 );
 $build->create_build_script;
 

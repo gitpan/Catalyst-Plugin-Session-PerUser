@@ -6,12 +6,13 @@ use base qw/Class::Accessor::Fast/;
 use strict;
 use warnings;
 
-our $VERSION = "0.02";
+our $VERSION = "0.03";
 
-use Hash::Merge ();
+use Hash::Merge         ();
+use Object::Signature   ();
 
 BEGIN {
-    __PACKAGE__->mk_accessors(qw/_user_session/);
+    __PACKAGE__->mk_accessors(qw/_user_session _user_session_data_sig/);
 }
 
 sub setup {
@@ -32,8 +33,6 @@ sub set_authenticated {
     my $c = shift;
     $c->NEXT::set_authenticated(@_);
 
-    $c->log->debug("user logging in") if $c->debug;
-
     if ( $c->config->{user_session}{migrate} ) {
         $c->merge_session_to_user;
     }
@@ -41,26 +40,19 @@ sub set_authenticated {
 
 sub logout {
     my $c = shift;
-    
-    $c->store_user_session_in_session_store;
+
+    $c->_save_user_session;
     $c->_user_session(undef);
-    
+
     $c->NEXT::logout(@_);
 }
 
 sub user_session {
     my $c = shift;
 
-    if ( my $user = $c->user ) {
+    if ( $c->user_exists ) {
         $c->log->debug("user logged in, using user session") if $c->debug;
-        if ( $c->user->supports("session_data") ) {
-            return $user->session_data || $user->session_data( {} );
-        }
-        else {
-            return $c->_user_session
-              || $c->_user_session( $c->get_user_session_from_session_store )
-              || $c->_user_session( {} );
-        }
+        return $c->_user_session || $c->_user_session($c->_load_user_session);
     }
     else {
         $c->log->debug("no user logged in, using guest session") if $c->debug;
@@ -68,25 +60,45 @@ sub user_session {
     }
 }
 
-sub get_user_session_from_session_store {
+sub _load_user_session {
     my $c = shift;
-    $c->log->debug("loading data from user session") if $c->debug;
-    $c->get_session_data( $c->user_session_sid );
+    if ( my $user = $c->user ) {
+        my $session_data;
+        if ( $user->supports("session_data") ) {
+            $session_data = $user->get_session_data;
+        }
+        else {
+            $session_data = $c->get_session_data( $c->user_session_sid );
+        }
+
+        $session_data ||= {};
+        $c->_user_session_data_sig( Object::Signature::signature($session_data) );
+        return $session_data;
+    }
+    return;
 }
 
-sub store_user_session_in_session_store {
+sub _save_user_session {
     my $c = shift;
-
-    if ( my $data = $c->_user_session ) {
-        $c->log->debug("storing data in user session") if $c->debug;
-        $c->store_session_data( $c->user_session_sid, $data );
+    if (my $data = $c->_user_session) {
+        no warnings 'uninitialized';
+        if ( Object::Signature::signature($data) ne $c->_user_session_data_sig
+             and ( my $user = $c->user ) )
+        {
+            if ( $user->supports("session_data") ) {
+                $user->store_session_data( $data );
+            }
+            else {
+                $c->store_session_data( $c->user_session_sid, $data );
+            }
+        }
     }
 }
 
 sub finalize {
     my $c = shift;
 
-    $c->store_user_session_in_session_store;
+    $c->_save_user_session;
 
     $c->NEXT::finalize(@_);
 }
@@ -167,8 +179,9 @@ This module can store session data in two ways:
 
 =head2 Within the User
 
-If C<<$c->user->supports("session_data")>> then C<<$c->user->session_data>> is
-used as an accessor to store the per-user session hash reference.
+If C<< $c->user->supports("session_data") >> then C<< $c->user->get_session_data >>
+and C<< $c->user->store_session_data($data) >> are used to access and store the
+per-user session hash reference.
 
 This is useful for L<Catalyst::Plugin::Authentication::Store> implementations
 that rely on a database or another fast, extensible format.
@@ -191,11 +204,11 @@ L<Catalyst::Plugin::Session/validate_session_id>. See L</CAVEATS> for details.
 
 =item user_session
 
-If no user is logged in, returns C<<$c->session>>.
+If no user is logged in, returns C<< $c->session >>.
 
-If a user is logged in, and C<<$user->supports("session_data")>> it will return
-C<<$c->user->session_data>>. Otherwise it will return
-C<<$c->user_session_from_session_store>>.
+If a user is logged in, and C<< $user->supports("session_data") >> it will return
+C<< $c->user->get_session_data >>. Otherwise it will return data from the normal
+session store, using C<user_session_sid> as a session ID.
 
 =back
 
@@ -208,20 +221,11 @@ C<<$c->user_session_from_session_store>>.
 Uses L<Hash::Merge> to merge the browser session into the user session,
 omitting the special keys from the browser session.
 
-Should be overloaded to e.g. merge shopping cart items more smartly.
-
-=item get_user_session_from_session_store
-
-Uses the C<Catalyst::Plugin::Session::Store> api to get a session data chunk
-whose session ID is C<user_session_sid>.
-
-=item store_user_session_in_session_store
-
-Stores the session data cached by C<user_session_from_session_store>.
+Should be overloaded to e.g. merge shopping cart items more intelligently.
 
 =item user_session_sid
 
-Returns
+By default returns
 
 	"user:" . $c->user->id
 
@@ -233,7 +237,7 @@ Returns
 
 =item set_authenticated
 
-Calls C<merge_session_to_user>
+Calls C<merge_session_to_user>.
 
 =back
 
@@ -254,13 +258,13 @@ login. On by default.
 
 Passed to L<Hash::Merge/set_behavior>. Defaults to C<RIGHT_PRECEDENT>.
 
-=item 
+=item
 
 =back
 
 =item CAVEATS
 
-If you override L<Catalyst::Plugin::Session/validate_session_id> make sure it's
+If you override L<Catalyst::Plugin::Session/validate_session_id> make sure its
 format B<DOES NOT ALLOW> the format returned by C<user_session_sid>, or
 malicious users could potentially set their cookies to have sessions formatted
 like a string returned by C<user_session_sid>, and steal or destroy another
