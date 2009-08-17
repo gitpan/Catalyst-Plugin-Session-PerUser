@@ -3,7 +3,16 @@
 use strict;
 use warnings;
 
-use Test::More tests => 43;
+use Test::More;
+
+BEGIN {
+    eval { require Test::WWW::Mechanize::Catalyst };
+    plan skip_all =>
+      "This test requires Test::WWW::Mechanize::Catalyst in order to run"
+      if $@;
+    plan skip_all => 'Test::WWW::Mechanize::Catalyst >= 0.40 required' if $Test::WWW::Mechanize::Catalyst::VERSION < 0.40;
+    plan tests => 43;
+}
 
 {
 

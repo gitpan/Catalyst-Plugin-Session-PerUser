@@ -6,7 +6,7 @@ use base qw/Class::Accessor::Fast/;
 use strict;
 use warnings;
 
-our $VERSION = "0.03";
+our $VERSION = "0.04";
 
 use Hash::Merge         ();
 use Object::Signature   ();
@@ -141,8 +141,7 @@ __END__
 
 =head1 NAME
 
-Catalyst::Plugin::Session::PerUser - Per user sessions (instead of per
-browser sessions).
+Catalyst::Plugin::Session::PerUser - Per user sessions (instead of per browser sessions).
 
 =head1 SYNOPSIS
 
@@ -239,6 +238,12 @@ By default returns
 
 Calls C<merge_session_to_user>.
 
+=item setup
+
+=item finalize
+
+=item logout
+
 =back
 
 =head1 CONFIGURATION
@@ -262,7 +267,7 @@ Passed to L<Hash::Merge/set_behavior>. Defaults to C<RIGHT_PRECEDENT>.
 
 =back
 
-=item CAVEATS
+=head1 CAVEATS
 
 If you override L<Catalyst::Plugin::Session/validate_session_id> make sure its
 format B<DOES NOT ALLOW> the format returned by C<user_session_sid>, or
@@ -281,9 +286,11 @@ David Kamholz, C<dkamholz@cpan.org>
 
 Yuval Kogman, C<nothingmuch@woobling.org>
 
+Tomas Doran, C<bobtfish@bobtfish.net>
+
 =head1 COPYRIGHT & LICENSE
 
-        Copyright (c) 2005 the aforementioned authors. All rights
+        Copyright (c) 2005 the aforementioned authors. Some rights
         reserved. This program is free software; you can redistribute
         it and/or modify it under the same terms as Perl itself.
 

@@ -1,25 +1,28 @@
 ---
-name: Catalyst-Plugin-Session-PerUser
-version: 0.03
+abstract: 'Per user sessions (instead of per browser sessions).'
 author:
   - 'David Kamholz, C<dkamholz@cpan.org>'
-  - 'Yuval Kogman, C<nothingmuch@woobling.org>'
-abstract: |-
-  Per user sessions (instead of per
-  browser sessions).
+build_requires:
+  ExtUtils::MakeMaker: 6.42
+configure_requires:
+  ExtUtils::MakeMaker: 6.42
+distribution_type: module
+generated_by: 'Module::Install version 0.910'
 license: perl
-resources:
-  license: http://dev.perl.org/licenses/
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Catalyst-Plugin-Session-PerUser
+no_index:
+  directory:
+    - inc
+    - t
 requires:
-  Catalyst::Plugin::Authentication: 0.01
-  Catalyst::Plugin::Session: 0.01
+  Catalyst::Plugin::Authentication: 0
+  Catalyst::Plugin::Session: 0.06
   Hash::Merge: 0
   Object::Signature: 0
-provides:
-  Catalyst::Plugin::Session::PerUser:
-    file: lib/Catalyst/Plugin/Session/PerUser.pm
-    version: 0.03
-generated_by: Module::Build version 0.2801
-meta-spec:
-  url: http://module-build.sourceforge.net/META-spec-v1.2.html
-  version: 1.2
+resources:
+  license: http://dev.perl.org/licenses/
+  repository: http://dev.catalyst.perl.org/repos/Catalyst/trunk/Catalyst-Plugin-Session-PerUser/
+version: 0.04

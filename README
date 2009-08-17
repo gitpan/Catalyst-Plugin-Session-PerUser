@@ -91,15 +91,15 @@ CONFIGURATION
         Passed to "set_behavior" in Hash::Merge. Defaults to
         "RIGHT_PRECEDENT".
 
-
+    *
 
     CAVEATS
-        If you override "validate_session_id" in Catalyst::Plugin::Session
-        make sure its format DOES NOT ALLOW the format returned by
-        "user_session_sid", or malicious users could potentially set their
-        cookies to have sessions formatted like a string returned by
-        "user_session_sid", and steal or destroy another user's session
-        without authenticating. =back
+    If you override "validate_session_id" in Catalyst::Plugin::Session make
+    sure its format DOES NOT ALLOW the format returned by
+    "user_session_sid", or malicious users could potentially set their
+    cookies to have sessions formatted like a string returned by
+    "user_session_sid", and steal or destroy another user's session without
+    authenticating. =back
 
 SEE ALSO
     Catalyst::Plugin::Authentication, Catalyst::Plugin::Session
@@ -113,14 +113,4 @@ COPYRIGHT & LICENSE
             Copyright (c) 2005 the aforementioned authors. All rights
             reserved. This program is free software; you can redistribute
             it and/or modify it under the same terms as Perl itself.
-
-POD ERRORS
-    Hey! The above document had some coding errors, which are explained
-    below:
-
-    Around line 265:
-        '=item' outside of any '=over'
-
-    Around line 274:
-        You forgot a '=back' before '=head1'
 
