@@ -21,8 +21,11 @@ requires:
   Catalyst::Plugin::Authentication: 0
   Catalyst::Plugin::Session: 0.06
   Hash::Merge: 0
+  MRO::Compat: 0
+  Moose: 0
   Object::Signature: 0
+  namespace::autoclean: 0
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://dev.catalyst.perl.org/repos/Catalyst/trunk/Catalyst-Plugin-Session-PerUser/
-version: 0.04
+version: 0.05

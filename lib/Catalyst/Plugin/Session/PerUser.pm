@@ -1,19 +1,16 @@
 #!/usr/bin/perl
 
 package Catalyst::Plugin::Session::PerUser;
-use base qw/Class::Accessor::Fast/;
+use Moose;
+use namespace::autoclean;
 
-use strict;
-use warnings;
+our $VERSION = "0.05";
 
-our $VERSION = "0.04";
-
+use MRO::Compat;
 use Hash::Merge         ();
 use Object::Signature   ();
 
-BEGIN {
-    __PACKAGE__->mk_accessors(qw/_user_session _user_session_data_sig/);
-}
+has [qw/_user_session _user_session_data_sig/] => ( is => 'rw' );
 
 sub setup {
     my $self = shift;
@@ -26,12 +23,12 @@ sub setup {
         %$cfg,
     );
 
-    $self->NEXT::setup;
+    $self->next::method(@_);
 }
 
 sub set_authenticated {
     my $c = shift;
-    $c->NEXT::set_authenticated(@_);
+    $c->maybe::next::method(@_);
 
     if ( $c->config->{user_session}{migrate} ) {
         $c->merge_session_to_user;
@@ -44,7 +41,7 @@ sub logout {
     $c->_save_user_session;
     $c->_user_session(undef);
 
-    $c->NEXT::logout(@_);
+    $c->maybe::next::method(@_);
 }
 
 sub user_session {
@@ -100,7 +97,7 @@ sub finalize {
 
     $c->_save_user_session;
 
-    $c->NEXT::finalize(@_);
+    $c->maybe::next::method(@_);
 }
 
 sub user_session_sid {

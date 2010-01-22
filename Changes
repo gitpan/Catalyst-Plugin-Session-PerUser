@@ -1,5 +1,10 @@
 Revision history for Perl extension Catalyst::Plugin::Session::PerUser
 
+0.05   2010-01-22 19:18:00
+    - Switch to using Moose and MRO::Compat rather than NEXT and
+      Class::Accessor::Fast (RT#53862)
+    - Split the TestApp out of the test file.
+
 0.04    2009-08-18 00:25:00
     - switch to Module::Install
     - add basic use test, plus pod/pod coverage tests
